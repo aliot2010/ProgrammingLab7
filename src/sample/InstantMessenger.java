@@ -54,41 +54,38 @@ public class InstantMessenger {
     }
 
     private void startServer() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    final ServerSocket serverSocket = new ServerSocket(SERVER_PORT);
-                    while (!Thread.interrupted()) {
-                        final Socket socket = serverSocket.accept();
-                        final DataInputStream in = new DataInputStream(
-                                socket.getInputStream());
+        new Thread(() -> {
+            try {
+                final ServerSocket serverSocket = new ServerSocket(SERVER_PORT);
+                while (!Thread.interrupted()) {
+                    final Socket socket1 = serverSocket.accept();
+                    final DataInputStream in = new DataInputStream(
+                            socket1.getInputStream());
 
-                        // Читаем имя отправителя
-                        final String senderName = in.readUTF();
+                    // Читаем имя отправителя
+                    final String senderName = in.readUTF();
 
-                        // Читаем сообщение
-                        final String message = in.readUTF();
+                    // Читаем сообщение
+                    final String message = in.readUTF();
 
-                        // Закрываем соединение
-                        socket.close();
+                    // Закрываем соединение
+                    socket1.close();
 
-                        // Выделяем IP-адрес
-                        final String address = ((InetSocketAddress) socket
-                                .getRemoteSocketAddress())
-                                .getAddress()
-                                .getHostAddress();
+                    // Выделяем IP-адрес
+                    final String address = ((InetSocketAddress) socket1
+                            .getRemoteSocketAddress())
+                            .getAddress()
+                            .getHostAddress();
 
-                        for (MessageListener listener : listeners) {
-                            listener.messageReceived(senderName, message);
-                        }
-
-                        // Выводим сообщение в текстовую область
-
+                    for (MessageListener listener : listeners) {
+                        listener.messageReceived(senderName, message);
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
+
+                    // Выводим сообщение в текстовую область
+
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }).start();
     }
